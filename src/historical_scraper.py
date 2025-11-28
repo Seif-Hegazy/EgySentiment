@@ -35,7 +35,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # Configuration
 GROQ_MODEL = "llama-3.3-70b-versatile"
 RATE_LIMIT_DELAY = 2.5  # 30 RPM compliance
-MAX_ARTICLES_PER_SOURCE = 50  # Reduced limit for testing/initial run
+MAX_ARTICLES_PER_SOURCE = 200  # Increased limit for aggressive scraping
 
 # Keywords for filtering
 KEYWORDS = [
@@ -53,8 +53,8 @@ SOURCES = {
     # Daily News Egypt - Archive pages
     "Daily News Egypt": {
         "base": "https://dailynewsegypt.com",
-        "archive_pattern": "https://dailynewsegypt.com/page/{page}/?s=economy", # Search for economy to get relevant results
-        "pages": 5,
+        "archive_pattern": "https://dailynewsegypt.com/category/business/page/{page}/",
+        "pages": 50,
         "selector": "h3.entry-title a"
     },
     
@@ -62,15 +62,15 @@ SOURCES = {
     "Egypt Independent": {
         "base": "https://egyptindependent.com",
         "archive_pattern": "https://egyptindependent.com/category/business/page/{page}/",
-        "pages": 5,
-        "selector": "h3.entry-title a"
+        "pages": 50,
+        "selector": "h2.entry-title a"
     },
     
     # Ahram Online - Business
     "Ahram Business": {
         "base": "https://english.ahram.org.eg",
         "archive_pattern": "https://english.ahram.org.eg/News/Business/{page}.aspx",
-        "pages": 5,
+        "pages": 30,
         "selector": "div.titlearticle a"
     },
     
@@ -78,7 +78,7 @@ SOURCES = {
     "Mubasher": {
         "base": "https://english.mubasher.info",
         "archive_pattern": "https://english.mubasher.info/news/list?page={page}",
-        "pages": 5,
+        "pages": 50,
         "selector": "h3.title a"
     },
     
@@ -86,7 +86,7 @@ SOURCES = {
     "Arab Finance": {
         "base": "https://www.arabfinance.com",
         "archive_pattern": "https://www.arabfinance.com/en/news/latest?page={page}",
-        "pages": 5,
+        "pages": 50,
         "selector": "div.news-title a"
     },
 }
