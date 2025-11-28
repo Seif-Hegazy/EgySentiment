@@ -18,6 +18,14 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 from fake_useragent import UserAgent
 from urllib.parse import urljoin
+from newspaper import Article
+import nltk
+
+# Download necessary NLTK data
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 
 # Load environment variables
 load_dotenv()
@@ -38,16 +46,20 @@ RSS_FEEDS = [
     "https://www.investing.com/rss/news_1.rss",
     "https://www.investing.com/rss/news_285.rss",
     
-    # With SSL bypass workaround
+    # New Sources
+    "https://www.al-monitor.com/rss",
+    "https://www.arabnews.com/cat/4/rss.xml", # Economy
+    "https://www.thenationalnews.com/rss/business/xml",
+    "https://amwalalghad.com/feed/",
+    
+    # With SSL bypass workaround (may need direct scrape fallback)
     "https://www.zawya.com/en/economy/north-africa/rss",
     "https://www.egypttoday.com/feed",
     "https://www.reuters.com/places/egypt/feed",
-    
-    # Additional sources
     "https://www.businesstodayegypt.com/feed",
 ]
 
-# Direct scraping sources (for blocked RSS)
+# Direct scraping sources (for blocked RSS or empty feeds)
 DIRECT_SCRAPE_SOURCES = {
     "Mubasher": {
         "url": "https://english.mubasher.info/news/latest",
@@ -68,6 +80,27 @@ DIRECT_SCRAPE_SOURCES = {
         "url": "https://english.ahram.org.eg/News/Business.aspx",
         "selector": "div.titlearticle a",
         "base": "https://english.ahram.org.eg"
+    },
+    # Fallbacks for empty RSS feeds
+    "Zawya": {
+        "url": "https://www.zawya.com/en/economy/north-africa",
+        "selector": "a.article-title",
+        "base": "https://www.zawya.com"
+    },
+    "Reuters Egypt": {
+        "url": "https://www.reuters.com/world/middle-east/",
+        "selector": "h3.story-title a", # Generic selector, needs testing
+        "base": "https://www.reuters.com"
+    },
+    "Egypt Today": {
+        "url": "https://www.egypttoday.com/Section/3/Business",
+        "selector": "div.news-title a",
+        "base": "https://www.egypttoday.com"
+    },
+    "Economy Plus": {
+        "url": "https://economyplusme.com/en/",
+        "selector": "h3.entry-title a",
+        "base": ""
     }
 }
 
@@ -78,46 +111,66 @@ KEYWORDS = [
     "stock", "shares", "equity", "securities", "trading", "listed", "delisted",
     "market cap", "volume", "index", "benchmark", "bullish", "bearish",
     
+    # EGX30 Companies (Top constituents)
+    "cib", "commercial international bank", "efg hermes", "elsewedy electric",
+    "talaat moustafa", "tmgh", "fawry", "eastern company", "abu qir fertilizers",
+    "mopco", "sidi kerir", "sidpec", "ezz steel", "gb corp", "ghabbour",
+    "palm hills", "sodic", "emaar misr", "heliopolis housing", "madinet masr",
+    "credit agricole", "qnb alahli", "faisal islamic bank", "housing and development bank",
+    "egyptian kuwaiti holding", "ekh", "alexandria container", "amoc",
+    "telecom egypt", "we", "vodafone egypt", "orange egypt", "etisalat",
+    "edita", "juhayna", "domty", "obour land", "ibnsina pharma", "rameda",
+    
     # Financial Performance
     "profit", "earnings", "revenue", "sales", "income", "ebitda", "ebt",
     "dividend", "payout", "distribution", "yield", "quarterly", "annual",
     "fiscal year", "fy", "q1", "q2", "q3", "q4", "margins", "growth",
     "performance", "results", "financial statements", "balance sheet",
+    "net income", "gross profit", "operating profit", "cash flow",
     
     # Corporate Actions
     "merger", "acquisition", "m&a", "takeover", "buyout", "consolidation",
     "ipo", "initial public offering", "listing", "offering", "capital increase",
     "rights issue", "bonus shares", "stock split", "buyback", "restructuring",
+    "private placement", "tender offer", "divestment", "spin-off",
     
     # Investment & Finance
     "investment", "investor", "fund", "portfolio", "venture capital",
     "private equity", "valuation", "financing", "funding", "capital",
-    "bond", "debt", "loan", "credit", "sukuk", "treasury",
+    "bond", "debt", "loan", "credit", "sukuk", "treasury", "t-bills",
+    "eurobond", "sovereign debt", "fdi", "foreign direct investment",
     
     # Sectors
     "banking", "bank", "insurance", "real estate", "construction", "telecom",
     "pharmaceutical", "pharma", "manufacturing", "retail", "tourism",
-    "energy", "oil", "gas", "infrastructure", "logistics",
+    "energy", "oil", "gas", "infrastructure", "logistics", "fintech",
+    "textiles", "agriculture", "automotive", "healthcare", "education",
     
     # Economic & Regulatory
     "economy", "economic", "gdp", "inflation", "interest rate", "monetary policy",
     "fiscal", "budget", "subsidy", "tax", "regulation", "compliance",
     "central bank", "cbe", "financial regulatory authority", "fra",
-    "egyptian exchange", "misr clearing",
+    "egyptian exchange", "misr clearing", "imf", "international monetary fund",
+    "world bank", "ebrd", "currency", "exchange rate", "egp", "pound", "dollar",
+    "devaluation", "float", "reserves", "foreign reserves", "external debt",
+    "pmi", "purchasing managers index", "trade balance", "current account",
     
     # Geography
-    "egypt", "egyptian", "cairo", "alexandria", "suez",
+    "egypt", "egyptian", "cairo", "alexandria", "suez", "new administrative capital",
     
     # Arabic Keywords
     "البورصة", "المصرية", "البورصة المصرية", "تداول", "أسهم", "سهم",
-    "مؤشر", "إيجى إكس", "السوق المالي", "قيمة سوقية",
+    "مؤشر", "إيجى إكس", "السوق المالي", "قيمة سوقية", "رأس المال السوقي",
     "أرباح", "إيرادات", "مبيعات", "دخل", "صافي", "ربحية",
     "توزيعات", "توزيعات أرباح", "عائد", "ربع سنوي", "سنوي",
-    "اندماج", "استحواذ", "طرح", "زيادة رأسمال",
+    "اندماج", "استحواذ", "طرح", "زيادة رأسمال", "اكتتاب",
     "استثمار", "مستثمر", "محفظة", "صندوق", "تمويل",
     "بنوك", "بنك", "تأمين", "عقارات", "اتصالات",
-    "اقتصاد", "اقتصادي", "تضخم", "البنك المركزي",
-    "مصر", "المصري", "القاهرة"
+    "اقتصاد", "اقتصادي", "تضخم", "البنك المركزي", "فائدة", "سعر الفائدة",
+    "مصر", "المصري", "القاهرة", "الجنيه", "الدولار", "تعويم",
+    "صندوق النقد", "الدين الخارجي", "الاحتياطي النقدي", "أذون الخزانة",
+    "التجاري الدولي", "هيرميس", "السويدي", "طلعت مصطفى", "فوري",
+    "الشرقية للدخان", "أبو قير", "موبكو", "عز الدخيلة", "حديد عز"
 ]
 
 
@@ -294,9 +347,20 @@ def load_existing_urls(output_file):
     return existing_urls
 
 
+def extract_full_text(url):
+    """Extract full article text using newspaper3k"""
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text
+    except Exception as e:
+        # print(f"⚠️  Could not extract full text from {url}: {e}")
+        return ""
+
 def build_training_dataset(entries):
     """Process entries and save to JSONL with deduplication"""
-    output_file = "training_data.jsonl"
+    output_file = "data/training_data.jsonl"
     
     # Load existing URLs
     existing_urls = load_existing_urls(output_file)
@@ -319,7 +383,16 @@ def build_training_dataset(entries):
         for entry in tqdm(new_entries, desc="Distilling knowledge"):
             title = entry.get('title', '')
             summary = entry.get('summary', '')
-            text = f"{title}. {summary}"
+            link = entry.get('link', '')
+            
+            # Try to get full text
+            full_text = extract_full_text(link)
+            
+            # Fallback to summary if full text extraction fails or is too short
+            if len(full_text) < 100:
+                text = f"{title}. {summary}"
+            else:
+                text = f"{title}. {full_text}"
             
             # Get sentiment from Groq
             analysis = distill_knowledge(text)
@@ -330,7 +403,7 @@ def build_training_dataset(entries):
                 "title": title,
                 "sentiment": analysis.get("sentiment", "neutral"),
                 "reasoning": analysis.get("reasoning", ""),
-                "source": entry.get('link', ''),
+                "source": link,
                 "published": entry.get('published', ''),
                 "timestamp": datetime.now().isoformat()
             }

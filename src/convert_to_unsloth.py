@@ -6,7 +6,7 @@ Convert EgySentiment training data to Unsloth/Llama fine-tuning format
 import json
 from datetime import datetime
 
-def convert_to_unsloth_format(input_file="training_data.jsonl", output_file="training_data_unsloth.json"):
+def convert_to_unsloth_format(input_file="data/training_data.jsonl", output_file="data/training_data_unsloth.json"):
     """
     Convert JSONL sentiment data to instruction format for Llama fine-tuning
     """
