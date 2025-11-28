@@ -7,17 +7,23 @@ Collects historical articles for fine-tuning Llama 3-8B
 
 import requests
 from bs4 import BeautifulSoup
-import feedparser
 import json
 import time
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from groq import Groq
 from tqdm import tqdm
 from dotenv import load_dotenv
 from fake_useragent import UserAgent
-from urllib.parse import urljoin, urlparse
-import re
+from urllib.parse import urljoin
+from newspaper import Article
+import nltk
+
+# Download necessary NLTK data
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 
 # Load environment variables
 load_dotenv()
@@ -29,7 +35,7 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # Configuration
 GROQ_MODEL = "llama-3.3-70b-versatile"
 RATE_LIMIT_DELAY = 2.5  # 30 RPM compliance
-MAX_ARTICLES_PER_SOURCE = 100  # Limit per source to manage API usage
+MAX_ARTICLES_PER_SOURCE = 50  # Reduced limit for testing/initial run
 
 # Keywords for filtering
 KEYWORDS = [
@@ -47,56 +53,32 @@ SOURCES = {
     # Daily News Egypt - Archive pages
     "Daily News Egypt": {
         "base": "https://dailynewsegypt.com",
-        "archive_pattern": "https://dailynewsegypt.com/page/{page}/",
-        "pages": 50,  # Scrape first 50 pages
-        "selector": "article h2 a"
+        "archive_pattern": "https://dailynewsegypt.com/page/{page}/?s=economy", # Search for economy to get relevant results
+        "pages": 5,
+        "selector": "h3.entry-title a"
     },
     
     # Egypt Independent - Archive
     "Egypt Independent": {
         "base": "https://egyptindependent.com",
         "archive_pattern": "https://egyptindependent.com/category/business/page/{page}/",
-        "pages": 30,
-        "selector": "h2.entry-title a"
-    },
-    
-    # Enterprise - Business news
-    "Enterprise": {
-        "base": "https://enterprise.press",
-        "archive_pattern": "https://enterprise.press/stories/page/{page}/",
-        "pages": 20,
-        "selector": "article a.story-link"
-    },
-    
-    # Business Today Egypt
-    "Business Today": {
-        "base": "https://businesstodayegypt.com",
-        "archive_pattern": "https://businesstodayegypt.com/category/business/page/{page}/",
-        "pages": 30,
-        "selector": "h2.entry-title a"
-    },
-    
-    # Egypt Today - Business
-    "Egypt Today": {
-        "base": "https://www.egypttoday.com",
-        "archive_pattern": "https://www.egypttoday.com/Section/3/3/1/{page}",
-        "pages": 25,
-        "selector": "div.news-title a"
+        "pages": 5,
+        "selector": "h3.entry-title a"
     },
     
     # Ahram Online - Business
     "Ahram Business": {
         "base": "https://english.ahram.org.eg",
         "archive_pattern": "https://english.ahram.org.eg/News/Business/{page}.aspx",
-        "pages": 20,
+        "pages": 5,
         "selector": "div.titlearticle a"
     },
     
-    # Mubasher (using direct archive URLs)
+    # Mubasher
     "Mubasher": {
         "base": "https://english.mubasher.info",
         "archive_pattern": "https://english.mubasher.info/news/list?page={page}",
-        "pages": 30,
+        "pages": 5,
         "selector": "h3.title a"
     },
     
@@ -104,7 +86,7 @@ SOURCES = {
     "Arab Finance": {
         "base": "https://www.arabfinance.com",
         "archive_pattern": "https://www.arabfinance.com/en/news/latest?page={page}",
-        "pages": 40,
+        "pages": 5,
         "selector": "div.news-title a"
     },
 }
@@ -116,7 +98,6 @@ def get_headers():
         'User-Agent': ua.random,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1'
     }
@@ -135,11 +116,9 @@ def fetch_article_urls(source_name, config):
     for page in tqdm(range(1, pages + 1), desc=f"  Pages from {source_name}"):
         try:
             url = pattern.format(page=page)
-            response = requests.get(url, headers=get_headers(), timeout=10)
+            response = requests.get(url, headers=get_headers(), timeout=15)
             
             if response.status_code != 200:
-                if page > 5:  # Only fail after first few pages
-                    break
                 continue
             
             soup = BeautifulSoup(response.content, 'lxml')
@@ -154,7 +133,7 @@ def fetch_article_urls(source_name, config):
             time.sleep(1)  # Polite scraping delay
             
         except Exception as e:
-            print(f"  ⚠️  Error on page {page}: {e}")
+            # print(f"  ⚠️  Error on page {page}: {e}")
             continue
     
     print(f"  ✓ Found {len(urls)} article URLs")
@@ -162,44 +141,20 @@ def fetch_article_urls(source_name, config):
 
 
 def extract_article_text(url):
-    """Extract article title and content from URL"""
+    """Extract article title and content using newspaper3k"""
     try:
-        response = requests.get(url, headers=get_headers(), timeout=15)
-        soup = BeautifulSoup(response.content, 'lxml')
-        
-        # Try common selectors for title
-        title = None
-        for selector in ['h1', 'h1.entry-title', 'h1.article-title', 'h1.title', 'h1.headline']:
-            title_elem = soup.select_one(selector)
-            if title_elem:
-                title = title_elem.get_text(strip=True)
-                break
-        
-        # Try common selectors for content
-        content = ""
-        for selector in ['div.entry-content', 'div.article-content', 'div.content', 
-                        'article', 'div.post-content', 'div.story-body']:
-            content_elem = soup.select_one(selector)
-            if content_elem:
-                # Remove scripts and styles
-                for script in content_elem(["script", "style"]):
-                    script.decompose()
-                content = content_elem.get_text(separator=' ', strip=True)
-                break
-        
-        # Fallback: get all paragraph text
-        if not content:
-            paragraphs = soup.find_all('p')
-            content = ' '.join([p.get_text(strip=True) for p in paragraphs])
-        
-        return title, content[:3000]  # Limit content length
-        
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.title, article.text
     except Exception as e:
         return None, None
 
 
 def filter_relevant(title, content):
     """Check if article is relevant based on keywords"""
+    if not title or not content:
+        return False
     text = f"{title} {content}".lower()
     return any(keyword.lower() in text for keyword in KEYWORDS)
 
@@ -252,7 +207,11 @@ def main():
     print("Bulk Data Collection for Llama 3-8B Fine-tuning")
     print("=" * 70)
     
-    output_file = "training_data.jsonl"
+    output_file = "data/training_data.jsonl"
+    
+    # Ensure data directory exists
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    
     existing_urls = load_existing_urls(output_file)
     print(f"\n📊 Existing dataset: {len(existing_urls)} samples")
     
@@ -265,7 +224,7 @@ def main():
         new_urls = [u for u in urls if u not in existing_urls]
         all_articles.extend([(source_name, u) for u in new_urls[:MAX_ARTICLES_PER_SOURCE]])
     
-    print(f"\n� Total new articles to process: {len(all_articles)}")
+    print(f"\n📦 Total new articles to process: {len(all_articles)}")
     
     if not all_articles:
         print("✓ No new articles found. Historical collection complete!")
