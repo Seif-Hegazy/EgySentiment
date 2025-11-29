@@ -2,7 +2,7 @@
 """
 EgySentiment Historical Data Scraper
 One-time use bulk data collection from Egyptian financial news archives
-Collects historical articles for fine-tuning Llama 3-8B
+Collects historical articles for fine-tuning Llama 3.1-8B
 """
 
 import requests
@@ -204,7 +204,7 @@ def main():
     """Run historical scraper"""
     print("=" * 70)
     print("EgySentiment Historical Scraper")
-    print("Bulk Data Collection for Llama 3-8B Fine-tuning")
+    print("Bulk Data Collection for Llama 3.1-8B Fine-tuning")
     print("=" * 70)
     
     output_file = "data/testing_data.jsonl"

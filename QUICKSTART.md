@@ -36,7 +36,7 @@ We use a **Hybrid Training** approach to fix domain mismatch.
         *   Load `Financial PhraseBank` (General Finance).
         *   Load `testing_data.jsonl` (Local Egyptian).
         *   Split Local Data: 50% for Training (Mixed), 50% for Testing.
-        *   Fine-tune Llama 3-8B.
+        *   Fine-tune Llama 3.1-8B.
         *   Evaluate on the unseen Egyptian test set.
 
 ### 4. Expected Results

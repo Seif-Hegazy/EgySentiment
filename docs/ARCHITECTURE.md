@@ -182,7 +182,7 @@ time.sleep(RATE_LIMIT_DELAY)  # Non-negotiable physics constraint
                                              │
                                              ▼
                                     ┌──────────────────┐
-                                    │ Llama 3-8B       │
+                                    │ Llama 3.1-8B       │
                                     │ Fine-tuning      │
                                     └──────────────────┘
 ```

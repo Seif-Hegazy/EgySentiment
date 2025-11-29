@@ -1,6 +1,6 @@
 # EgySentiment: Egyptian Financial News Sentiment Dataset
 
-Automated data collection pipeline for fine-tuning Llama 3-8B on Egyptian financial sentiment analysis.
+Automated data collection pipeline for fine-tuning Llama 3.1-8B on Egyptian financial sentiment analysis.
 
 ## 🚀 Quick Start
 
@@ -286,7 +286,7 @@ sudo chown -R $USER:$USER data/ logs/
 2. **Day 1-14:** Airflow runs automatically every 4 hours → +40-70 samples/day
 3. **Day 14:** Check dataset size → Should have 1,300-2,900 samples
 4. **Day 14:** Run converter → Generate Unsloth format
-5. **Day 15:** Fine-tune Llama 3-8B with your dataset
+5. **Day 15:** Fine-tune Llama 3.1-8B with your dataset
 
 ---
 
@@ -299,7 +299,7 @@ For issues or questions:
 
 ---
 
-**Built for:** Fine-tuning Llama 3-8B Instruct on Egyptian financial sentiment analysis  
+**Built for:** Fine-tuning Llama 3.1-8B Instruct on Egyptian financial sentiment analysis  
 **Dataset Format:** JSONL (raw) → JSON (Unsloth instruction format)  
 **Automation:** Apache Airflow + Docker  
 **API:** Groq (Llama 3.3-70B for labeling)
