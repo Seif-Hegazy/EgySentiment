@@ -32,7 +32,7 @@ dag = DAG(
 
 def check_data_quality(**context):
     """Verify data collection succeeded and check quality"""
-    data_file = '/opt/airflow/data/training_data.jsonl'
+    data_file = '/opt/airflow/data/testing_data.jsonl'
     
     if not os.path.exists(data_file):
         raise FileNotFoundError(f"Data file not found: {data_file}")
@@ -72,7 +72,14 @@ collect_data = BashOperator(
     dag=dag,
 )
 
-# Task 2: Check data quality
+# Task 2: Deduplicate data
+deduplicate_data = BashOperator(
+    task_id='deduplicate_data',
+    bash_command='cd /opt/airflow && python src/deduplicate_data.py',
+    dag=dag,
+)
+
+# Task 3: Check data quality
 quality_check = PythonOperator(
     task_id='check_data_quality',
     python_callable=check_data_quality,
@@ -80,7 +87,7 @@ quality_check = PythonOperator(
     dag=dag,
 )
 
-# Task 3: Log success
+# Task 4: Log success
 log_success = BashOperator(
     task_id='log_collection_success',
     bash_command='echo "EgySentiment collection completed at $(date)"',
@@ -88,4 +95,4 @@ log_success = BashOperator(
 )
 
 # Define task dependencies
-collect_data >> quality_check >> log_success
+collect_data >> deduplicate_data >> quality_check >> log_success
