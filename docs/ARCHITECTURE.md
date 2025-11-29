@@ -168,11 +168,11 @@ time.sleep(RATE_LIMIT_DELAY)  # Non-negotiable physics constraint
                                     └────────┬─────────┘
                                              │
                                              ▼
-                                    ┌──────────────────┐
-                                    │ training_data    │
-                                    │   .jsonl         │
-                                    │ (Append Mode)    │
-                                    └────────┬─────────┘
+                                     ┌──────────────────┐
+                                     │ testing_data     │
+                                     │   .jsonl         │
+                                     │ (Append Mode)    │
+                                     └────────┬─────────┘
                                              │
                                              ▼
                                     ┌──────────────────┐
@@ -245,10 +245,10 @@ python historical_scraper.py
 ### Monitoring Commands
 ```bash
 # Dataset size
-wc -l training_data.jsonl
+wc -l testing_data.jsonl
 
 # Real-time growth
-watch -n 10 wc -l training_data.jsonl
+watch -n 10 wc -l testing_data.jsonl
 
 # Sentiment distribution
 python convert_to_unsloth.py | grep "Sentiment Distribution" -A 5
@@ -330,8 +330,8 @@ EgySentiment/
 ├── data_pipeline.py              # Daily RSS + scraping
 ├── historical_scraper.py         # Bulk archive collection
 ├── convert_to_unsloth.py         # Format converter
-├── training_data.jsonl           # Raw labeled data
-├── training_data_unsloth.json    # Ready for training
+├── testing_data.jsonl            # Raw labeled data (Local Egyptian Data)
+├── training_data_unsloth.json    # (Deprecated) Ready for training
 ├── .env                          # API keys
 ├── data_sci_env/                 # Virtual environment
 ├── README.md                     # Full documentation

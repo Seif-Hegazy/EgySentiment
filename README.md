@@ -49,8 +49,8 @@ EgySentiment/
 │   ├── Dockerfile                # Python scraper image
 │   └── requirements.txt          # Dependencies
 ├── data/                         # Output data
-│   ├── training_data.jsonl       # Raw labeled data
-│   └── training_data_unsloth.json# Ready for fine-tuning
+│   ├── testing_data.jsonl        # Raw labeled data (Local Egyptian Data)
+│   └── training_data_unsloth.json# (Deprecated) Ready for fine-tuning
 ├── logs/                         # Airflow logs
 ├── docs/                         # Documentation
 ├── .env                          # Environment variables
@@ -122,8 +122,9 @@ docker-compose down -v
 - **Schedule:** Every 4 hours (`0 */4 * * *`)
 - **Tasks:**
   1. Run daily data pipeline
-  2. Check data quality
-  3. Send alerts (optional)
+  2. Deduplicate data (Automated)
+  3. Check data quality
+  4. Send alerts (optional)
 
 ### Accessing Airflow
 1. Navigate to http://localhost:8080
@@ -138,10 +139,10 @@ docker-compose down -v
 ### Check Dataset Size
 ```bash
 # From host
-wc -l data/training_data.jsonl
+wc -l data/testing_data.jsonl
 
 # From Docker
-docker-compose run scraper wc -l data/training_data.jsonl
+docker-compose run scraper wc -l data/testing_data.jsonl
 ```
 
 ### Sentiment Distribution
@@ -193,6 +194,12 @@ model, tokenizer = FastLanguageModel.from_pretrained(
 )
 
 # Fine-tune with your Egyptian sentiment data
+
+### Hybrid Training Strategy (Phase 2.5)
+We now use a **Hybrid Training** approach to fix domain mismatch:
+1.  **Train:** Financial PhraseBank + 50% of `testing_data.jsonl` (Local Data).
+2.  **Test:** Remaining 50% of `testing_data.jsonl`.
+3.  **Goal:** Teach the model both general financial sentiment and Egyptian news nuances.
 ```
 
 ---
@@ -257,6 +264,7 @@ sudo chown -R $USER:$USER data/ logs/
 - ✅ Daily pipeline (14 sources with RSS bypass)
 - ✅ Docker containerization
 - ✅ Airflow automation (4-hour schedule)
+- ✅ Automated Deduplication
 - ✅ Unsloth format converter
 - ✅ Complete documentation
 
