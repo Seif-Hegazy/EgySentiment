@@ -20,12 +20,12 @@ def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
 def deduplicate():
-    if not os.path.exists(DATA_FILE):
-        print(f"✗ File not found: {DATA_FILE}")
+    if not os.path.exists(input_file):
+        print(f"✗ File not found: {input_file}")
         return
 
-    print(f"🔍 Reading {DATA_FILE}...")
-    with open(DATA_FILE, 'r', encoding='utf-8') as f:
+    print(f"🔍 Reading {input_file}...")
+    with open(input_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
     original_count = len(lines)
@@ -93,11 +93,11 @@ def deduplicate():
     print(f"\n💾 Saving cleaned dataset...")
     
     # Backup original
-    if os.path.exists(BACKUP_FILE):
-        os.remove(BACKUP_FILE)
-    os.rename(DATA_FILE, BACKUP_FILE)
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    os.rename(input_file, output_file)
     
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+    with open(input_file, 'w', encoding='utf-8') as f:
         for record in final_records:
             f.write(json.dumps(record, ensure_ascii=False) + '\n')
             
