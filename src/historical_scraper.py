@@ -207,7 +207,7 @@ def main():
     print("Bulk Data Collection for Llama 3-8B Fine-tuning")
     print("=" * 70)
     
-    output_file = "data/training_data.jsonl"
+    output_file = "data/testing_data.jsonl"
     
     # Ensure data directory exists
     os.makedirs(os.path.dirname(output_file), exist_ok=True)

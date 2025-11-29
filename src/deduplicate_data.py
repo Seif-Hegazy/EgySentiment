@@ -11,8 +11,8 @@ import os
 from difflib import SequenceMatcher
 from tqdm import tqdm
 
-DATA_FILE = "data/training_data.jsonl"
-BACKUP_FILE = "data/training_data.jsonl.bak"
+input_file = "data/testing_data.jsonl"
+output_file = "data/testing_data.jsonl.bak"
 SIMILARITY_THRESHOLD = 0.90  # 90% similarity threshold for titles
 
 def similar(a, b):

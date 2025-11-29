@@ -360,7 +360,7 @@ def extract_full_text(url):
 
 def build_training_dataset(entries):
     """Process entries and save to JSONL with deduplication"""
-    output_file = "data/training_data.jsonl"
+    output_file = 'data/testing_data.jsonl'
     
     # Load existing URLs
     existing_urls = load_existing_urls(output_file)
