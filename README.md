@@ -31,6 +31,11 @@ The system is composed of three main modules:
 *   **Dashboard:** Real-time sentiment analysis with market data overlay (yfinance).
 *   **Batch Processor:** Bulk scoring of historical data with keyword filtering for specific stocks (e.g., CIB, Ezz Steel).
 
+## Documentation
+*   **[Architecture Overview](docs/ARCHITECTURE.md):** System design and data flow.
+*   **[User Guide](docs/USER_GUIDE.md):** How to use the dashboard and batch processor.
+*   **[Developer Guide](docs/DEVELOPER_GUIDE.md):** How to add stocks and retrain the model.
+
 ## Installation
 
 ### Prerequisites
