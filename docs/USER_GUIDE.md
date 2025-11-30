@@ -27,13 +27,17 @@ Use this tab for instant analysis of breaking news.
 Use this tab to generate features for your quantitative models (LSTM, XGBoost, etc.).
 
 1.  **Upload Data:** Drag and drop your historical CSV or JSONL file.
-2.  **Select Column:** Choose the column containing the news text.
+2.  **Select Columns:**
+    *   **Text Column:** Choose the column containing the news text.
+    *   **Date Column (Optional):** Select the column with dates if you want time-series features.
 3.  **Smart Filter (Optional):**
     *   Select a target stock (e.g., "Elsewedy Electric").
     *   The system automatically filters for relevant keywords (English & Arabic).
-    *   *Example:* Selecting "Elsewedy" catches "SWDY", "El Sewedy", "السويدي", etc.
-4.  **Process:** Click "🚀 Start Batch Processing".
-5.  **Download:** Get a CSV with a new `sentiment_score` column (`1`, `0`, `-1`).
+4.  **Aggregation (Optional):**
+    *   Check **"📅 Aggregate Scores by Day?"** to calculate the mean sentiment score per day.
+    *   *Best for:* Creating daily features for forecasting models (e.g., matching with daily stock prices).
+5.  **Process:** Click "🚀 Start Batch Processing".
+6.  **Download:** Get a CSV with `daily_sentiment_score` (if aggregated) or individual `sentiment_score` features.
 
 ## Troubleshooting
 

@@ -423,12 +423,14 @@ with tab2:
             
             st.dataframe(df.head(), use_container_width=True)
             
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
             with col1:
                 text_col = st.selectbox("Select Text Column", df.columns)
             with col2:
+                date_col = st.selectbox("Select Date Column (Optional)", ["None"] + list(df.columns))
+            with col3:
                 # Smart Filter Dropdown
-                target_stock = st.selectbox("Select Target Stock for Filtering", ["None (Process All)"] + list(STOCK_DATA.keys()))
+                target_stock = st.selectbox("Select Target Stock", ["None (Process All)"] + list(STOCK_DATA.keys()))
             
             # Filter Logic
             if target_stock != "None (Process All)":
@@ -446,6 +448,11 @@ with tab2:
                 else:
                     st.success(f"✅ Found **{final_count}** relevant articles (out of {initial_count}).")
             
+            # Aggregation Option
+            aggregate_daily = False
+            if date_col != "None":
+                aggregate_daily = st.checkbox("📅 Aggregate Scores by Day? (Recommended for Forecasting)", value=True)
+
             if st.button("🚀 Start Batch Processing", disabled=df.empty):
                 progress_bar = st.progress(0)
                 status_text = st.empty()
@@ -475,23 +482,58 @@ with tab2:
                 df['sentiment'] = sentiments
                 df['sentiment_score'] = scores
                 
-                end_time = time.time()
-                duration = end_time - start_time
-                
-                st.success(f"✅ Processed {total} items in {duration:.2f} seconds!")
-                
-                # Preview
-                st.dataframe(df[[text_col, 'sentiment', 'sentiment_score']].head(), use_container_width=True)
-                
-                # Download
-                filename = f"{target_stock.replace(' ', '_')}_features.csv" if target_stock != "None (Process All)" else "egysentiment_features.csv"
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label=f"💾 Download {filename}",
-                    data=csv,
-                    file_name=filename,
-                    mime='text/csv',
-                )
+                # Handle Aggregation
+                if aggregate_daily and date_col != "None":
+                    try:
+                        # Convert to datetime
+                        df[date_col] = pd.to_datetime(df[date_col])
+                        # Group by Date
+                        daily_df = df.groupby(df[date_col].dt.date).agg({
+                            'sentiment_score': 'mean',
+                            text_col: 'count'  # Count articles per day
+                        }).reset_index()
+                        daily_df.rename(columns={text_col: 'article_count', 'sentiment_score': 'daily_sentiment_score'}, inplace=True)
+                        
+                        st.success(f"✅ Aggregated into {len(daily_df)} daily records!")
+                        st.dataframe(daily_df.head(), use_container_width=True)
+                        
+                        # Download Aggregated
+                        filename = f"{target_stock.replace(' ', '_')}_DAILY_features.csv" if target_stock != "None (Process All)" else "daily_sentiment_features.csv"
+                        csv = daily_df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label=f"💾 Download Daily Features CSV",
+                            data=csv,
+                            file_name=filename,
+                            mime='text/csv',
+                        )
+                    except Exception as e:
+                        st.error(f"Aggregation Failed: {e}")
+                        # Fallback to raw download
+                        st.warning("Downloading raw data instead.")
+                        csv = df.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="💾 Download Raw Features CSV",
+                            data=csv,
+                            file_name='raw_features.csv',
+                            mime='text/csv',
+                        )
+                else:
+                    end_time = time.time()
+                    duration = end_time - start_time
+                    st.success(f"✅ Processed {total} items in {duration:.2f} seconds!")
+                    
+                    # Preview
+                    st.dataframe(df[[text_col, 'sentiment', 'sentiment_score']].head(), use_container_width=True)
+                    
+                    # Download Raw
+                    filename = f"{target_stock.replace(' ', '_')}_features.csv" if target_stock != "None (Process All)" else "egysentiment_features.csv"
+                    csv = df.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label=f"💾 Download {filename}",
+                        data=csv,
+                        file_name=filename,
+                        mime='text/csv',
+                    )
                 
         except Exception as e:
             st.error(f"Error processing file: {e}")
