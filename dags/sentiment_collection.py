@@ -87,12 +87,19 @@ quality_check = PythonOperator(
     dag=dag,
 )
 
-# Task 4: Log success
-log_success = BashOperator(
-    task_id='log_collection_success',
-    bash_command='echo "EgySentiment collection completed at $(date)"',
+    # Task 4: Auto-Score New Articles (Ollama)
+auto_score = BashOperator(
+    task_id='auto_score_sentiment',
+    bash_command='python /opt/airflow/src/auto_score.py',
     dag=dag,
 )
 
-# Define task dependencies
-collect_data >> deduplicate_data >> quality_check >> log_success
+    # Task 5: Log Success
+log_success = BashOperator(
+    task_id='log_success',
+    bash_command='echo "Daily Sentiment Pipeline Completed Successfully at $(date)"',
+    dag=dag,
+)
+
+    # Define task dependencies
+collect_data >> deduplicate_data >> quality_check >> auto_score >> log_success
