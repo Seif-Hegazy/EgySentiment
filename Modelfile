@@ -1,0 +1,21 @@
+FROM ./EgySentiment-Llama3.1-8B.Q4_K_M.gguf
+
+# Strict Alpaca Template (Matches Training)
+TEMPLATE """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+{{ .System }}
+
+### Input:
+{{ .Prompt }}
+
+### Response:
+"""
+
+# System Message (User Request + Training Context)
+SYSTEM "You are a financial expert. Analyze the sentiment of the following financial news. Provide the sentiment (positive/negative/neutral) and a brief reasoning. Answer in JSON format."
+
+# Parameters optimized for M-series chips
+PARAMETER temperature 0.1
+PARAMETER num_ctx 4096
+PARAMETER stop "}"

@@ -9,3 +9,7 @@ requests==2.32.5
 fake-useragent==2.2.0
 newspaper3k==0.2.8
 lxml_html_clean
+streamlit
+ollama
+yfinance
+plotly
