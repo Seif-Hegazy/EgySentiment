@@ -178,13 +178,22 @@ def analyze_text(text):
         response = ollama.chat(model='egysentiment', messages=[
             {'role': 'user', 'content': text},
         ])
-        content = response['message']['content']
-        if "{" in content:
-            content = content[content.find("{"):content.rfind("}")+1]
+        content = response['message']['content'].strip()
+        
+        # Robust JSON extraction
+        start_idx = content.find("{")
+        if start_idx != -1:
+            end_idx = content.rfind("}")
+            if end_idx != -1:
+                content = content[start_idx:end_idx+1]
+            else:
+                # If closing brace is missing, try to append it
+                content = content[start_idx:] + "}"
+        
         result = json.loads(content)
         return result.get("sentiment", "neutral").lower(), result.get("reasoning", "")
-    except:
-        return "neutral", "Error"
+    except Exception as e:
+        return "neutral", f"Error: {str(e)} | Raw: {content if 'content' in locals() else 'No content'}"
 
 def get_sentiment_score(sentiment):
     if sentiment == "positive": return 1
