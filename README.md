@@ -56,6 +56,27 @@ The system is composed of three main modules:
     ollama create egysentiment -f Modelfile
     ```
 
+EgySentiment/
+├── src/                          # Source code
+│   ├── app.py                    # Streamlit Dashboard
+│   ├── auto_score.py             # MLOps Scoring Script
+│   ├── data_pipeline.py          # Airflow Logic
+│   └── ...
+├── dags/                         # Airflow DAGs
+├── docker/                       # Docker configuration
+│   ├── Dockerfile.airflow
+│   └── requirements.txt
+├── models/                       # Model Artifacts
+│   ├── EgySentiment...gguf       # Fine-Tuned Model
+│   └── lora_adapters.zip
+├── notebooks/                    # Jupyter Notebooks
+│   └── fine_tune.ipynb
+├── data/                         # Data Storage
+├── docs/                         # Documentation
+├── Modelfile                     # Ollama Config
+├── docker-compose.yml            # Orchestration
+└── README.md                     # This file
+
 4.  **Start Dashboard:**
     ```bash
     streamlit run src/app.py
