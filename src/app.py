@@ -90,85 +90,170 @@ st.markdown("""
 # --- Comprehensive Stock Mapping (EGX 30) ---
 # Format: "Display Name": {"ticker": "TICKER.CA", "keywords": ["list", "of", "keywords"]}
 STOCK_DATA = {
+    # --- Banking Sector ---
     "Commercial International Bank (CIB)": {
         "ticker": "COMI.CA",
-        "keywords": ["CIB", "COMI", "Commercial International Bank", "البنك التجاري الدولي", "التجاري الدولي"]
-    },
-    "E-Finance": {
-        "ticker": "EFIH.CA",
-        "keywords": ["E-Finance", "EFIH", "e-finance", "إي فاينانس", "اي فاينانس"]
-    },
-    "EFG Hermes": {
-        "ticker": "HRHO.CA",
-        "keywords": ["EFG Hermes", "HRHO", "EFG", "المجموعة المالية هيرميس", "هيرميس"]
-    },
-    "Eastern Company": {
-        "ticker": "EAST.CA",
-        "keywords": ["Eastern Company", "EAST", "Eastern Tobacco", "الشرقية للدخان", "ايسترن كومباني"]
-    },
-    "Elsewedy Electric": {
-        "ticker": "SWDY.CA",
-        "keywords": ["Elsewedy", "SWDY", "El Sewedy", "السويدي", "السويدي إليكتريك"]
-    },
-    "Telecom Egypt (WE)": {
-        "ticker": "ETEL.CA",
-        "keywords": ["Telecom Egypt", "ETEL", "WE", "TE", "المصرية للاتصالات", "وي"]
-    },
-    "Talaat Moustafa Group": {
-        "ticker": "TMGH.CA",
-        "keywords": ["Talaat Moustafa", "TMGH", "TMG", "طلعت مصطفى", "مجموعة طلعت مصطفى"]
-    },
-    "Fawry": {
-        "ticker": "FWRY.CA",
-        "keywords": ["Fawry", "FWRY", "فوري", "شركة فوري"]
-    },
-    "Ezz Steel": {
-        "ticker": "ESRS.CA",
-        "keywords": ["Ezz Steel", "ESRS", "Ezz", "حديد عز", "عز الدخيلة"]
-    },
-    "Abu Qir Fertilizers": {
-        "ticker": "ABUK.CA",
-        "keywords": ["Abu Qir", "ABUK", "أبو قير", "أبو قير للأسمدة"]
-    },
-    "Alexandria Mineral Oils (AMOC)": {
-        "ticker": "AMOC.CA",
-        "keywords": ["AMOC", "Alexandria Mineral Oils", "أموك", "زيوت معدنية"]
+        "keywords": ["CIB", "COMI", "Commercial International Bank", "البنك التجاري الدولي", "التجاري الدولي", "CIB Egypt"]
     },
     "QNB Alahli": {
         "ticker": "QNBA.CA",
-        "keywords": ["QNB", "QNBA", "Qatar National Bank", "بنك قطر الوطني", "قطر الوطني"]
+        "keywords": ["QNB", "QNBA", "Qatar National Bank", "بنك قطر الوطني", "قطر الوطني", "QNB Alahli", "بنك قطر الوطني الأهلي"]
     },
-    "Madinet Masr": {
-        "ticker": "MASR.CA",
-        "keywords": ["Madinet Masr", "MASR", "Madinet Nasr", "MNHD", "مدينة مصر", "مدينة نصر"]
-    },
-    "Palm Hills": {
-        "ticker": "PHDC.CA",
-        "keywords": ["Palm Hills", "PHDC", "بالم هيلز"]
-    },
-    "Heliopolis Housing": {
-        "ticker": "HELI.CA",
-        "keywords": ["Heliopolis", "HELI", "مصر الجديدة", "مصر الجديدة للإسكان"]
-    },
-    "Sidi Kerir Petrochemicals": {
-        "ticker": "SKPC.CA",
-        "keywords": ["Sidi Kerir", "SKPC", "Sidpec", "سيدي كرير", "سيدبك"]
-    },
-    "GB Corp": {
-        "ticker": "GBCO.CA",
-        "keywords": ["GB Corp", "GBCO", "GB Auto", "Ghabbour", "جي بي أوتو", "غبور"]
-    },
-    "Credit Agricole Egypt": {
+    "Crédit Agricole Egypt": {
         "ticker": "CIEB.CA",
-        "keywords": ["Credit Agricole", "CIEB", "كريدي أجريكول"]
+        "keywords": ["Credit Agricole", "CIEB", "Crédit Agricole", "كريدي أجريكول", "بنك كريدي أجريكول"]
     },
-    "Orascom Construction": {
-        "ticker": "ORAS.CA",
-        "keywords": ["Orascom", "ORAS", "أوراسكوم", "أوراسكوم للإنشاءات"]
+    "Housing & Development Bank": {
+        "ticker": "HDBK.CA",
+        "keywords": ["HDBK", "Housing & Development Bank", "Housing and Development Bank", "بنك التعمير والإسكان", "التعمير والإسكان"]
+    },
+    "Faisal Islamic Bank of Egypt": {
+        "ticker": "FAIT.CA",
+        "keywords": ["Faisal Islamic Bank", "FAIT", "FAITA", "بنك فيصل الإسلامي", "فيصل الإسلامي"]
+    },
+    "Abu Dhabi Islamic Bank (ADIB)": {
+        "ticker": "ADIB.CA",
+        "keywords": ["ADIB", "Abu Dhabi Islamic Bank", "مصرف أبوظبي الإسلامي", "أبوظبي الإسلامي", "ADIB Egypt"]
+    },
+    "Al Baraka Bank Egypt": {
+        "ticker": "SAUD.CA",
+        "keywords": ["Al Baraka", "SAUD", "Al Baraka Bank", "بنك البركة", "البركة مصر"]
+    },
+    "Egyptian Gulf Bank (EGBANK)": {
+        "ticker": "EGBE.CA",
+        "keywords": ["EGBANK", "EGBE", "Egyptian Gulf Bank", "البنك المصري الخليجي", "المصري الخليجي"]
+    },
+    "Export Development Bank of Egypt (EBank)": {
+        "ticker": "EXPA.CA",
+        "keywords": ["EBank", "EXPA", "Export Development Bank", "البنك المصري لتنمية الصادرات", "تنمية الصادرات"]
+    },
+
+    # --- Non-Bank Financial Services ---
+    "EFG Hermes": {
+        "ticker": "HRHO.CA",
+        "keywords": ["EFG Hermes", "HRHO", "EFG", "EFG Holding", "المجموعة المالية هيرميس", "هيرميس", "هيرميس القابضة"]
+    },
+    "E-Finance": {
+        "ticker": "EFIH.CA",
+        "keywords": ["E-Finance", "EFIH", "e-finance", "إي فاينانس", "اي فاينانس", "e-finance for Digital and Financial Investments"]
+    },
+    "Fawry": {
+        "ticker": "FWRY.CA",
+        "keywords": ["Fawry", "FWRY", "Fawry for Banking Technology", "فوري", "شركة فوري", "فوري للمدفوعات"]
     },
     "Belton Financial": {
         "ticker": "BTFH.CA",
-        "keywords": ["Belton", "BTFH", "بلتون", "بلتون المالية"]
+        "keywords": ["Belton", "BTFH", "Belton Financial", "بلتون", "بلتون المالية", "بلتون القابضة"]
+    },
+    "CI Capital": {
+        "ticker": "CICH.CA",
+        "keywords": ["CI Capital", "CICH", "سي آي كابيتال", "سي اي كابيتال"]
+    },
+
+    # --- Real Estate & Construction ---
+    "Talaat Moustafa Group (TMG)": {
+        "ticker": "TMGH.CA",
+        "keywords": ["Talaat Moustafa", "TMGH", "TMG", "TMG Holding", "طلعت مصطفى", "مجموعة طلعت مصطفى", "Madinaty", "Rehab City", "مدينتي", "الرحاب"]
+    },
+    "Palm Hills Developments": {
+        "ticker": "PHDC.CA",
+        "keywords": ["Palm Hills", "PHDC", "Palm Hills Developments", "بالم هيلز", "بالم هيلز للتعمير", "Badya", "بادية"]
+    },
+    "Sixth of October Development & Investment (SODIC)": {
+        "ticker": "OCDI.CA",
+        "keywords": ["SODIC", "OCDI", "Sixth of October Development", "سوديك", "السادس من أكتوبر للتنمية"]
+    },
+    "Madinet Masr (MNHD)": {
+        "ticker": "MASR.CA",
+        "keywords": ["Madinet Masr", "MASR", "Madinet Nasr", "MNHD", "مدينة مصر", "مدينة نصر للإسكان", "Taj City", "تاج سيتي"]
+    },
+    "Heliopolis Housing": {
+        "ticker": "HELI.CA",
+        "keywords": ["Heliopolis", "HELI", "Heliopolis Company for Housing", "مصر الجديدة", "مصر الجديدة للإسكان", "مصر الجديدة للاسكان والتعمير"]
+    },
+    "Orascom Construction": {
+        "ticker": "ORAS.CA",
+        "keywords": ["Orascom Construction", "ORAS", "Orascom", "أوراسكوم للإنشاءات", "أوراسكوم كونستراكشون"]
+    },
+    "Emaar Misr": {
+        "ticker": "EMFD.CA",
+        "keywords": ["Emaar", "EMFD", "Emaar Misr", "إعمار", "إعمار مصر", "Marassi", "مراسي"]
+    },
+
+    # --- Industrial & Basic Resources ---
+    "Elsewedy Electric": {
+        "ticker": "SWDY.CA",
+        "keywords": ["Elsewedy", "SWDY", "El Sewedy", "Elsewedy Electric", "السويدي", "السويدي إليكتريك", "السويدي للكابلات"]
+    },
+    "Ezz Steel": {
+        "ticker": "ESRS.CA",
+        "keywords": ["Ezz Steel", "ESRS", "Ezz", "Al Ezz Dekheila", "حديد عز", "عز الدخيلة", "مجموعة عز"]
+    },
+    "Abu Qir Fertilizers": {
+        "ticker": "ABUK.CA",
+        "keywords": ["Abu Qir", "ABUK", "Abu Qir Fertilizers", "أبو قير", "أبو قير للأسمدة", "ابوقير"]
+    },
+    "Misr Fertilizers Production (MOPCO)": {
+        "ticker": "MFPC.CA",
+        "keywords": ["MOPCO", "MFPC", "Misr Fertilizers", "موبكو", "مصر لإنتاج الأسمدة"]
+    },
+    "Sidi Kerir Petrochemicals (SIDPEC)": {
+        "ticker": "SKPC.CA",
+        "keywords": ["Sidi Kerir", "SKPC", "Sidpec", "سيدي كرير", "سيدبك", "سيدي كرير للبتروكيماويات"]
+    },
+    "Alexandria Mineral Oils (AMOC)": {
+        "ticker": "AMOC.CA",
+        "keywords": ["AMOC", "Alexandria Mineral Oils", "أموك", "زيوت معدنية", "الاسكندرية للزيوت المعدنية"]
+    },
+    "Kima": {
+        "ticker": "KIMA.CA",
+        "keywords": ["Kima", "KIMA", "Egyptian Chemical Industries", "كيما", "الصناعات الكيماوية المصرية"]
+    },
+
+    # --- Telecom & Technology ---
+    "Telecom Egypt (WE)": {
+        "ticker": "ETEL.CA",
+        "keywords": ["Telecom Egypt", "ETEL", "WE", "TE", "المصرية للاتصالات", "وي", "تي إي داتا"]
+    },
+
+    # --- Consumer & Healthcare ---
+    "Eastern Company": {
+        "ticker": "EAST.CA",
+        "keywords": ["Eastern Company", "EAST", "Eastern Tobacco", "الشرقية للدخان", "ايسترن كومباني", "سجائر"]
+    },
+    "Juhayna Food Industries": {
+        "ticker": "JUFO.CA",
+        "keywords": ["Juhayna", "JUFO", "جهينة", "جهينه", "جهينة للصناعات الغذائية"]
+    },
+    "Edita Food Industries": {
+        "ticker": "EFID.CA",
+        "keywords": ["Edita", "EFID", "إيديتا", "ايديتا", "إيديتا للصناعات الغذائية"]
+    },
+    "Ibnsina Pharma": {
+        "ticker": "ISPH.CA",
+        "keywords": ["Ibnsina", "ISPH", "Ibnsina Pharma", "ابن سينا", "ابن سينا فارما"]
+    },
+    "Cleopatra Hospitals": {
+        "ticker": "CLHO.CA",
+        "keywords": ["Cleopatra", "CLHO", "Cleopatra Hospitals Group", "CHG", "مستشفيات كليوباترا", "مجموعة كليوباترا"]
+    },
+    "GB Corp (Ghabbour)": {
+        "ticker": "GBCO.CA",
+        "keywords": ["GB Corp", "GBCO", "GB Auto", "Ghabbour", "جي بي أوتو", "غبور", "جي بي كورب"]
+    },
+
+    # --- Others ---
+    "Egypt Kuwait Holding": {
+        "ticker": "EKHO.CA",
+        "keywords": ["Egypt Kuwait Holding", "EKHO", "EKH", "القابضة المصرية الكويتية", "المصرية الكويتية"]
+    },
+    "Qalaa Holdings": {
+        "ticker": "CCAP.CA",
+        "keywords": ["Qalaa", "CCAP", "Citadel Capital", "القلعة", "القلعة للاستشارات المالية"]
+    },
+    "Egyptian Satellites (NileSat)": {
+        "ticker": "EGSA.CA",
+        "keywords": ["NileSat", "EGSA", "Egyptian Satellites", "نايل سات", "المصرية للأقمار الصناعية"]
     }
 }
 
